@@ -2,6 +2,8 @@
 
 nextArtifacts is an open-source project that enables users to generate small applications using any Large Language Model (LLM) API compatible with the OpenAI format. This project is inspired by and modified from [llamacoder](https://github.com/Nutlope/llamacoder), which uses Llama 3 405B & Together.ai.
 
+<img width="1275" alt="image" src="https://github.com/user-attachments/assets/504cca4d-06f5-4391-8e17-4d99ef2f3635">
+
 ## Features
 
 - Compatible with any LLM API that follows the OpenAI format
