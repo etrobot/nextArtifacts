@@ -58,7 +58,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 If you find this project useful, please consider supporting the developer:
 
 <a href="https://ko-fi.com/franklin754" target="_blank">
-    <img src="https://storage.ko-fi.com/cdn/brandasset/kofi_button_blue.png" alt="Buy Me a Coffee" style="height: 40px !important;width: 145px !important;" >
+    <img src="https://storage.ko-fi.com/cdn/brandasset/kofi_button_blue.png" alt="Buy Me a Coffee" style="height: 40px; width: 240px;" >
 </a>
 
 ## License
