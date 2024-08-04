@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { SandpackProvider, SandpackLayout, SandpackPreview, SandpackCodeEditor } from '@codesandbox/sandpack-react';
+import { Sandpack } from '@codesandbox/sandpack-react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -151,7 +151,7 @@ const Coding: React.FC = () => {
   return (
     <div className="flex flex-col h-screen p-2">
       <div className="flex-1">
-        <SandpackProvider
+        <Sandpack
           template="react"
           theme="dark"
           options={{
@@ -167,12 +167,7 @@ const Coding: React.FC = () => {
             entry: '/index.js',
             environment: language === 'html' ? 'static' : 'create-react-app',
           }}
-        >
-          <SandpackLayout>
-            <SandpackCodeEditor />
-            <SandpackPreview />
-          </SandpackLayout>
-        </SandpackProvider>
+        />
         {assistantMessages.length > 0 && (
           <select
             value={selectedMessageIndex}
