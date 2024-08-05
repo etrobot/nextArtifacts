@@ -16,7 +16,7 @@ const Coding: React.FC = () => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [selectedCode, setSelectedCode] = useState('');
+  const [selectedCode, setSelectedCode] = useState(`export default() => { return <p className='bg-gray-900 h-screen' ></p>;}`);
   const [language, setLanguage] = useState<'jsx' | 'js' | 'html' | 'tsx'>('jsx');
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<number>(0);
   const controllerRef = useRef<AbortController | null>(null);
