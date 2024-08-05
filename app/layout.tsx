@@ -27,7 +27,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar githubUrl="https://github.com/etrobot/notionNextSite" twitterUrl="https://x.com/etrobot" />
+          <Navbar githubUrl="https://github.com/etrobot/nextArtifacts" twitterUrl="https://x.com/etrobot" />
           <main className='mx-auto p-2'>
             {children}
           </main>
