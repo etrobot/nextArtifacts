@@ -204,6 +204,12 @@ const Coding: React.FC = () => {
 
       <div className="fixed bottom-0 items-center mb-2 w-full px-2">
         <div className="flex items-center w-full mb-1">
+        <button
+            onClick={()=>{controllerRef?.current?.abort();setMessages([]);setIsStreaming(false);}}
+            className="p-2 border border-gray-300 rounded mr-2"
+          >
+            New
+          </button>
           <input
             type="text"
             value={input}
