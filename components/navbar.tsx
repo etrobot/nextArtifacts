@@ -1,5 +1,6 @@
 'use client'
 import { ThemeToggle } from '@/components/theme-toggle';
+import { useTheme } from 'next-themes'
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { TwitterX, Github } from '@/components/ui/social-icons';
@@ -11,6 +12,7 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ githubUrl, twitterUrl }) => {
+  const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -31,13 +33,9 @@ const Navbar: React.FC<NavbarProps> = ({ githubUrl, twitterUrl }) => {
             md:flex md:space-x-4 md:items-center
             ${isOpen ? 'mt-4 p-4 space-y-2' : 'hidden'}
           `}>
-            {githubUrl && (
-              <li key="github">
-                <a href={githubUrl} target='_blank' rel="noopener noreferrer">
-                  <Github width={20} height={20}/>
-                </a>
-              </li>
-            )}
+            <Link className='title font-bold' href="https://aicube.fun" target='_blank'>
+                AICUBE.FUN
+              </Link>
             {twitterUrl && (
               <li key="x">
                 <a href={twitterUrl} target='_blank' rel="noopener noreferrer">
@@ -45,10 +43,14 @@ const Navbar: React.FC<NavbarProps> = ({ githubUrl, twitterUrl }) => {
                 </a>
               </li>
             )}
+            {githubUrl && (
+              <li key="github">
+                <a href={githubUrl} target='_blank' rel="noopener noreferrer">
+                  <Github width={20} height={20} fill={theme=='dark' ? 'white' : 'black'} />
+                </a>
+              </li>
+            )}
             <li key="all">
-              <Link className='title font-bold' href="https://aicube.fun" target='_blank'>
-                AICUBE.FUN
-              </Link>
             </li>
           </ul>
         </div>

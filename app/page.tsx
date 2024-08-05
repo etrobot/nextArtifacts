@@ -80,7 +80,7 @@ const Coding: React.FC = () => {
                     ...prevMessages.slice(0, -1),
                     { role: 'assistant', content: reply },
                   ]);
-                } 
+                }
                 if (parsedMessage.choices[0].finish_reason === 'stop') {
                   setIsStreaming(false);
                   break;
@@ -155,7 +155,8 @@ const Coding: React.FC = () => {
           template="react"
           theme="dark"
           options={{
-            externalResources: ["https://cdn.tailwindcss.com"]
+            externalResources: ["https://cdn.tailwindcss.com"],
+            editorHeight: 500,
           }}
           files={{
             '/App.js': {
@@ -186,11 +187,10 @@ const Coding: React.FC = () => {
         {messages.map((message, index) => (
           <div className="w-full flex" key={index}>
             <span
-              className={`${
-                message.role === 'user'
+              className={`${message.role === 'user'
                   ? 'ml-auto bg-blue-500 bg-opacity-20 rounded-md my-2 p-2 max-w-xs'
-                  : ''
-              }`}
+                  : 'text-sm bg-gray-500 bg-opacity-20 rounded-md my-2 p-2 max-w-xs'
+                }`}
               dangerouslySetInnerHTML={{
                 __html:
                   message.role === 'assistant'
@@ -201,7 +201,29 @@ const Coding: React.FC = () => {
           </div>
         ))}
       </div>
+
       <div className="fixed bottom-0 items-center mb-2 w-full px-2">
+        <div className="flex items-center w-full mb-1">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type your message..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                handleSendMessage();
+                e.preventDefault();
+              }
+            }}
+            className="flex-1 p-2 border border-gray-300 rounded w-full mr-2"
+          />
+          <button
+            onClick={handleSendMessage}
+            className="p-2 border border-gray-300 rounded mr-2"
+          >
+            Send
+          </button>
+        </div>
         <div className="flex mb-1 gap-2">
           <input
             type="text"
@@ -225,27 +247,6 @@ const Coding: React.FC = () => {
             className="p-2 border border-gray-300 rounded w-full text-right"
           />
           <span className="py-1">/v1/chat/completions</span>
-        </div>
-        <div className="flex items-center w-full">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                handleSendMessage();
-                e.preventDefault();
-              }
-            }}
-            className="flex-1 p-2 border border-gray-300 rounded w-full mr-2"
-          />
-          <button
-            onClick={handleSendMessage}
-            className="p-2 border border-gray-300 rounded mr-2"
-          >
-            Send
-          </button>
         </div>
       </div>
     </div>
