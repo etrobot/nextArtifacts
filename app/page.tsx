@@ -23,17 +23,17 @@ const Coding: React.FC = () => {
   const [apiBaseUrl, setApiBaseUrl] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [model, setModel] = useState('');
+  const [view, setView] = useState<'chat' | 'code'>('code');
 
+  const containCode = (content: string): boolean => {
+    return content.includes('import') && content.includes('export default')
+  }
   const handleSendMessage = async () => {
-    // Abort any ongoing request
-    if (controllerRef.current) {
-      controllerRef.current.abort();
-    }
-
-    const userMessage = { role: 'user' as const, content: input };
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setView('chat');
+    if (controllerRef.current) controllerRef.current.abort();
+    const userMessage = { role: 'user', content: input };
+    setMessages((prevMessages) => [...prevMessages, { role: 'user', content: userMessage.content }]);
     setInput('');
-
     setIsStreaming(true);
     const controller = new AbortController();
     controllerRef.current = controller;
@@ -41,15 +41,8 @@ const Coding: React.FC = () => {
     try {
       const response = await fetch(`/api/coding`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [...messages, userMessage],
-          apiKey,
-          model,
-          apiBaseUrl,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [...messages, userMessage] }),
         signal: controller.signal,
       });
 
@@ -63,24 +56,19 @@ const Coding: React.FC = () => {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-
           buffer += textDecoder.decode(value, { stream: true });
 
           const lines = buffer.split('\n');
           buffer = lines.pop() || '';
           for (const line of lines) {
             if (line.trim().startsWith('data: ')) {
-              const json = line.trim().substring(6);
               try {
-                const parsedMessage = JSON.parse(json);
-
-                if (parsedMessage.choices[0].delta) {
-                  reply += parsedMessage.choices[0].delta.content ?? '';
-                  setMessages((prevMessages) => [
-                    ...prevMessages.slice(0, -1),
-                    { role: 'assistant', content: reply },
-                  ]);
-                }
+                const parsedMessage = JSON.parse(line.trim().substring(6));
+                reply += parsedMessage.choices[0].delta.content ?? '';
+                setMessages((prevMessages) => [
+                  ...prevMessages.slice(0, -1),
+                  { role: 'assistant', content: reply },
+                ]);
                 if (parsedMessage.choices[0].finish_reason === 'stop') {
                   setIsStreaming(false);
                   break;
@@ -94,63 +82,43 @@ const Coding: React.FC = () => {
       } else {
         setIsStreaming(false);
       }
+      if(containCode(reply))setSelectedCode(extractCodeSnippets(reply)[0].code);
+      ;
     } catch (error: any) {
-      if (error.name === 'AbortError') {
-        console.log('Fetch aborted');
-      } else {
-        console.error('Fetch error:', error);
-      }
+      if (error.name !== 'AbortError') console.error('Fetch error:', error);
       setIsStreaming(false);
     }
   };
 
   const extractCodeSnippets = (content: string): CodeSnippet[] => {
-    const regex = /```(\w+)?\s*([\s\S]*?)```/g;
-    const snippets: CodeSnippet[] = [];
-    let match;
+    var snippets: CodeSnippet[] = [];
+    if(content.includes('```')){
+      const regex = /```(\w+)?\s*([\s\S]*?)```/g;
+      let match;
 
-    while ((match = regex.exec(content)) !== null) {
-      const lang = (match[1] || 'jsx') as 'jsx' | 'js' | 'html' | 'tsx';
-      snippets.push({ language: lang, code: match[2].trim() });
+      while ((match = regex.exec(content)) !== null) {
+        const lang = (match[1] || 'jsx') as 'jsx' | 'js' | 'html' | 'tsx';
+        snippets.push({ language: lang, code: match[2].trim() });
+      }
+    }else{
+      snippets.push({ language: 'tsx', code: content });
     }
-
     return snippets;
   };
 
   const handleCodeSelection = (index: number) => {
-    const assistantMessages = messages.filter((msg) => msg.role === 'assistant');
-    if (assistantMessages[index]) {
-      var snippets: CodeSnippet[] = [{ code: assistantMessages[index].content, language }];
-      if (assistantMessages[index].content.includes('```')) {
-        snippets = extractCodeSnippets(assistantMessages[index].content);
-      }
-      if (snippets.length > 0) {
-        setSelectedCode(snippets[0].code);
-        setLanguage(snippets[0].language);
-        setSelectedMessageIndex(index);
-      }
+    if (messages[index]) {
+      const msgc = messages[index].content;
+      if(!containCode(msgc)) return
+      setSelectedCode(extractCodeSnippets(msgc)[0].code);
     }
   };
-
-  useEffect(() => {
-    const assistantMessages = messages.filter((msg) => msg.role === 'assistant');
-    if (assistantMessages.length > 0) {
-      const lastMessageIndex = assistantMessages.length - 1;
-      var snippets: CodeSnippet[] = [{ code: assistantMessages[lastMessageIndex].content, language }];
-      if (assistantMessages[lastMessageIndex].content.includes('```')) {
-        snippets = extractCodeSnippets(assistantMessages[lastMessageIndex].content);
-      }
-      if (snippets.length > 0) {
-        handleCodeSelection(lastMessageIndex);
-      }
-    }
-  }, [messages]);
 
   const assistantMessages = messages.filter((msg) => msg.role === 'assistant');
 
   return (
     <div className="flex flex-col h-screen p-2">
-      <div className="flex-1">
+      <div className="isolate relative">
         <Sandpack
           template="react"
           theme="dark"
@@ -169,37 +137,45 @@ const Coding: React.FC = () => {
             environment: language === 'html' ? 'static' : 'create-react-app',
           }}
         />
+        {view === 'chat' && (
+          <div className="absolute left-0 top-0 bottom-0 w-1/2 bg-slate-900 h-[500px] text-white opacity-80 p-2 z-10 overflow-y-auto">
+            {messages.map((message, index) => (
+              <div className="w-full flex" key={index}>
+                <div
+                  className={message.role === 'user' ? 'ml-auto bg-blue-500 rounded-sm p-2 max-w-xs' : `bg-zinc-700 rounded-sm my-2 p-2 cursor-pointer ${containCode(message.content)?'hover:underline':''}`}
+                  onClick={() => handleCodeSelection(index)}
+                  dangerouslySetInnerHTML={{
+                    __html: containCode(message.content) ? `<span>📟 Code Snippet ${(index + 1) / 2}</span>`:message.content
+                  }}
+                >
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="flex justify-center my-2">
+        <label className="mr-4">
+          <input
+            type="checkbox"
+            name="view"
+            value="chat"
+            checked={view === 'chat'}
+            onChange={() => setView(view === 'chat' ? 'code' : 'chat')}
+          /> Show Chat 
+        </label>
         {assistantMessages.length > 0 && (
           <select
             value={selectedMessageIndex}
             onChange={(e) => handleCodeSelection(parseInt(e.target.value, 10))}
-            className="p-2 border border-gray-300 rounded"
           >
             {assistantMessages.map((_, index) => (
               <option key={index} value={index}>
-                Message {assistantMessages.length - index}
+                Code Snipset {assistantMessages.length - index}
               </option>
             ))}
           </select>
         )}
       </div>
-      <div className="flex-1 overflow-y-auto mb-20 p-2">
-        {messages.map((message, index) => (
-          <div className="w-full flex" key={index}>
-            <span
-              className={`${message.role === 'user'
-                  ? 'ml-auto bg-blue-500 bg-opacity-20 rounded-md my-2 p-2 max-w-xs'
-                  : 'text-sm bg-gray-500 bg-opacity-20 rounded-md my-2 p-2 max-w-xs'
-                }`}
-              dangerouslySetInnerHTML={{
-                __html:
-                  message.role === 'assistant'
-                    ? '🤖: ' + message.content.replace(/\n/g, '<br>')
-                    : message.content,
-              }}
-            />
-          </div>
-        ))}
       </div>
 
       <div className="fixed bottom-0 items-center mb-2 w-full px-2">
