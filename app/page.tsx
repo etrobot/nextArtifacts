@@ -119,8 +119,6 @@ const Coding: React.FC = () => {
     }
   };
 
-  const assistantMessages = messages.filter((msg) => msg.role === 'assistant');
-
   return (
     <div className="flex flex-col h-screen p-2">
       <div className="isolate relative">
@@ -168,14 +166,15 @@ const Coding: React.FC = () => {
             onChange={() => setView(view === 'chat' ? 'code' : 'chat')}
           /> Show Chat 
         </label>
-        {assistantMessages.length > 0 && (
+        {messages.length > 0 && (
           <select
             value={selectedMessageIndex}
             onChange={(e) => handleCodeSelection(parseInt(e.target.value, 10))}
           >
-            {assistantMessages.map((_, index) => (
+            {messages.map((msg, index) => (
+              msg.role === 'assistant' &&
               <option key={index} value={index}>
-                Code Snipset {assistantMessages.length - index}
+                Code Snipset {(index+1)/2}
               </option>
             ))}
           </select>
