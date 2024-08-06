@@ -42,7 +42,12 @@ const Coding: React.FC = () => {
       const response = await fetch(`/api/coding`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({
+          messages: [...messages, userMessage],
+          apiKey,
+          model,
+          apiBaseUrl,
+        }),
         signal: controller.signal,
       });
 
