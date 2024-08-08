@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from '@/components/providers';
 import Navbar from '@/components/navbar'
+import { GoogleTagManager,GoogleAnalytics } from '@next/third-parties/google'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +21,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <GoogleTagManager gtmId={process.env.GTM_ID!}/>
       <body className={inter.className}>
         <Providers
           attribute="class"
