@@ -21,7 +21,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <GoogleTagManager gtmId={process.env.GTM_ID!}/>
+      <GoogleAnalytics gaId={process.env.GA_ID!} />
       <body className={inter.className}>
         <Providers
           attribute="class"
