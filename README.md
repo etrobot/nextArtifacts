@@ -55,11 +55,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Support
 
-If you find this project useful, please consider supporting the developer:
-
-<a href="https://ko-fi.com/franklin754" target="_blank">
-    <img src="https://storage.ko-fi.com/cdn/brandasset/kofi_button_blue.png" alt="Buy Me a Coffee" style="height: 40px; width: 240px;" >
-</a>
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://www.paypal.com/paypalme/franklin755)
 
 ## License
 
