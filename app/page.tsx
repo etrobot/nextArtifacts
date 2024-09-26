@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { Sandpack } from '@codesandbox/sandpack-react';
-
+import Color2Tailwind from '@/components/color2tailwind';
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -24,7 +24,7 @@ const Coding: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [model, setModel] = useState('');
   const [view, setView] = useState<'chat' | 'code'>('code');
-
+  const [readingImg, setReadingImg] = useState(false);
   const containCode = (content: string): boolean => {
     return content.includes('import') && content.includes('export default')
   }
@@ -184,6 +184,9 @@ const Coding: React.FC = () => {
 
       <div className="fixed bottom-0 items-center mb-2 w-full px-2">
         <div className="flex items-center w-full mb-1">
+          <div className='w-36'>
+            <Color2Tailwind setInput={setInput} readingImg={readingImg} setReadingImg={setReadingImg} isStreaming={isStreaming} />
+          </div>
         <button
             onClick={()=>{controllerRef?.current?.abort();setMessages([]);setIsStreaming(false);}}
             className="p-2 border border-gray-300 rounded mr-2"
